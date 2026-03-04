@@ -1,7 +1,10 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>Fablify</h1>
+  <main>
+    <h1>fablify</h1>
+    <button>send request</button>
+  </main>
 </template>
 
-<style scoped></style>
+<style></style>
