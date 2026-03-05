@@ -9,7 +9,7 @@ import NotFound from "../views/NotFound.vue";
 const routes = [
   { path: "/", component: HomeView },
   { path: "/books/new", component: UpdloadView },
-  { path: "/books/:id/processing", component: ProcessingView },
+  { path: "/books/:id/processing", component: ProcessingView, props: true },
   { path: "/books/:id", component: BookView },
 
   //fallback

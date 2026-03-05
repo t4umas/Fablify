@@ -2,8 +2,26 @@
 import { ref } from "vue";
 import CubeSpinner from "../components/CubeSpinner.vue";
 
-const progress = ref(10);
+const props = defineProps({
+  id: String,
+});
+
+const progress = ref(0);
 const message = ref("Processing your book...");
+
+const eventSource = new EventSource(
+  `http://localhost:8000/progress/${props.id}`,
+);
+
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  if (data.progress) {
+    progress.value = data.progress;
+  }
+  if (data.message) {
+    message.value = data.message;
+  }
+};
 </script>
 
 <template>

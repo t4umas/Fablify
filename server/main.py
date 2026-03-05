@@ -32,8 +32,11 @@ async def process_pdf_task(book_id: str, file_path: Path):
         tasks_status[book_id]["progress"] = 1
 
         # Transform all pages to text
+        tasks_status[book_id]["message"] = "Transforming pdf to text..."
         await asyncio.sleep(2)  # simulate for now
         tasks_status[book_id]["progress"] = 30
+
+        tasks_status[book_id]["message"] = "Generating Images..."
         await asyncio.sleep(3)
         tasks_status[book_id]["progress"] = 70
 
@@ -89,6 +92,9 @@ async def process_stream(book_id: str):
                 return
 
             yield f"data: {json.dumps(task)}\n\n"
+
+            if task["status"] in ["completed", "failed"]:
+                return
 
             await asyncio.sleep(1)
 
