@@ -6,9 +6,10 @@ import uuid
 import asyncio
 import shutil
 import json
+import os
 
 from fastapi.sse import EventSourceResponse
-from storage import init_storage, UPLOAD_DIR
+from storage import BOOKS_DIR, init_storage, UPLOAD_DIR
 from utils.ingest_book import ingest_book
 
 
@@ -99,3 +100,18 @@ async def process_stream(book_id: str):
             await asyncio.sleep(1)
 
     return EventSourceResponse(event_generator())
+
+
+@app.get("/books/{book_id}/metadata")
+def get_book_metadata(book_id: str):
+    book_dir = BOOKS_DIR / book_id
+    if os.path.isdir(book_dir):
+        try:
+            with open(book_dir / "metadata.json", "r", encoding="utf-8") as file:
+                content = json.load(file)
+            return content
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    else:
+        raise HTTPException(404, "The book you have requested doesnt exist")

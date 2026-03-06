@@ -5,24 +5,34 @@ const props = defineProps({
   id: String,
 });
 
-const curTitle = ref<string>("Le petit chaperon rouge");
+const curTitle = ref<string>("Unamed Book");
 const loadedPages = ref([]);
 //curPage = computed => loadedPage and split by \n
+const curPage = ref<number>(1);
+const totalPage = ref<number>(10);
 
-onMounted(() => {
+onMounted(async () => {
   loadedPages.value = [];
-  //get metadatas and set title
+  const res = await fetch(`http://localhost:8000/books/${props.id}/metadata`);
+  if (res.ok) {
+    const metadata = await res.json();
+    if (metadata.title) {
+      curTitle.value = metadata.title;
+    }
+    if (metadata.pages > 0) {
+      totalPage.value = metadata.pages;
+    } else {
+      throw new Error("Pages should be superior than 0");
+    }
+  }
   //get page 1 and 2 (if disponible) and add them to loadedPageText
 });
 
-const maxLength = 25;
+const maxLength = 30;
 const truncatedTitle = computed(() => {
   if (curTitle.value.length <= maxLength) return curTitle.value;
   return curTitle.value.slice(0, maxLength) + "...";
 });
-
-const curPage = ref<number>(1);
-const totalPage = ref<number>(10);
 
 const handleNextPage = () => {
   if (curPage.value < totalPage.value) {
