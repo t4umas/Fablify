@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { fetchPage } from "../utils/fetchPage";
+import type { BookPage } from "../types";
 
 const props = defineProps({
   id: String,
 });
 
 const curTitle = ref<string>("Unamed Book");
-const loadedPages = ref([]);
+const loadedPages = ref<Array<BookPage>>([]);
 //curPage = computed => loadedPage and split by \n
 const curPage = ref<number>(1);
 const totalPage = ref<number>(10);
 
 onMounted(async () => {
   loadedPages.value = [];
+
+  //get metadatas
   const res = await fetch(`http://localhost:8000/books/${props.id}/metadata`);
   if (res.ok) {
     const metadata = await res.json();
@@ -25,7 +29,20 @@ onMounted(async () => {
       throw new Error("Pages should be superior than 0");
     }
   }
-  //get page 1 and 2 (if disponible) and add them to loadedPageText
+
+  if (props.id) {
+    const firstPage: BookPage | undefined = await fetchPage(props.id, 1);
+    if (firstPage) {
+      loadedPages.value.push(firstPage);
+    }
+
+    if (totalPage.value > 1) {
+      const secondPage: BookPage | undefined = await fetchPage(props.id, 2);
+      if (secondPage) {
+        loadedPages.value.push(secondPage);
+      }
+    }
+  }
 });
 
 const maxLength = 30;

@@ -115,3 +115,23 @@ def get_book_metadata(book_id: str):
 
     else:
         raise HTTPException(404, "The book you have requested doesnt exist")
+
+
+@app.get("/books/{book_id}/pages/{page_number}")
+def get_page_from_book(book_id: str, page_number: int):
+    book_dir = BOOKS_DIR / book_id
+    page_file = book_dir / "pages" / f"page_{page_number}.txt"
+
+    if not book_dir.is_dir():
+        raise HTTPException(
+            status_code=404, detail="The book you requested does not exist"
+        )
+
+    if not page_file.is_file():
+        raise HTTPException(status_code=404, detail=f"Page {page_number} not found")
+
+    try:
+        content = page_file.read_text(encoding="utf-8")
+        return {"page_number": page_number, "content": content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
