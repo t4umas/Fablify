@@ -5,9 +5,5 @@ body {
 }
 
 main {
-  min-height: 100vh;
-  background: #0d0b0f;
-  color: white;
-
   margin: 0;
 }

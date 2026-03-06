@@ -10,7 +10,7 @@ const routes = [
   { path: "/", component: HomeView },
   { path: "/books/new", component: UpdloadView },
   { path: "/books/:id/processing", component: ProcessingView, props: true },
-  { path: "/books/:id", component: BookView },
+  { path: "/books/:id", component: BookView, props: true },
 
   //fallback
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },

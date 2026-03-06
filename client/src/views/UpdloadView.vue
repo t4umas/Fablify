@@ -45,6 +45,9 @@ const sendRequest = async () => {
 
 <style scoped>
 main {
+  min-height: 100vh;
+  background: #0d0b0f;
+  color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
