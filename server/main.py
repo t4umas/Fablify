@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import uuid
@@ -8,6 +8,8 @@ import shutil
 import json
 
 from fastapi.sse import EventSourceResponse
+from storage import init_storage, UPLOAD_DIR
+from utils.ingest_book import ingest_book
 
 
 app = FastAPI()
@@ -19,10 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create a directory for uploads
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
-
+init_storage()
 tasks_status: Dict[str, Dict[str, Any]] = {}  # id -> {status, progress, message, error}
 
 
@@ -34,6 +33,7 @@ async def process_pdf_task(book_id: str, file_path: Path):
         # Transform all pages to text
         tasks_status[book_id]["message"] = "Transforming pdf to text..."
         await asyncio.sleep(2)  # simulate for now
+        ingest_book(book_id, file_path)
         tasks_status[book_id]["progress"] = 30
 
         tasks_status[book_id]["message"] = "Generating Images..."
