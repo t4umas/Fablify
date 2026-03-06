@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import CubeSpinner from "../components/CubeSpinner.vue";
+import { router } from "../router/router";
 
 const props = defineProps({
   id: String,
@@ -20,6 +21,9 @@ eventSource.onmessage = (event) => {
   }
   if (data.message) {
     message.value = data.message;
+  }
+  if (data.status && ["text_ready", "completed"].includes(data.status)) {
+    router.push(`/books/${props.id}`);
   }
 };
 </script>

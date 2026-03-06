@@ -33,17 +33,18 @@ async def process_pdf_task(book_id: str, file_path: Path):
         # Transform all pages to text
         tasks_status[book_id]["message"] = "Transforming pdf to text..."
         ingest_book(book_id, file_path)
-        tasks_status[book_id]["progress"] = 20
+        tasks_status[book_id].update(
+            {"status": "text_ready", "progress": 20, "message": "Generating Images..."}
+        )
 
-        tasks_status[book_id]["message"] = "Generating Images..."
         await asyncio.sleep(3)
         tasks_status[book_id]["progress"] = 70
+        await asyncio.sleep(5)
 
         tasks_status[book_id].update(
             {
                 "status": "completed",
                 "progress": 100,
-                "result": {"pages": 42, "title": "Mon super PDF"},
             }
         )
     except Exception as e:
