@@ -9,7 +9,16 @@ const props = defineProps({
 
 const curTitle = ref<string>("Unamed Book");
 const loadedPages = ref<Array<BookPage>>([]);
-//curPage = computed => loadedPage and split by \n
+const curTextPage = computed(() => {
+  const page = loadedPages.value.find(
+    (page) => page.page_number === curPage.value,
+  );
+  return page?.content ?? "";
+});
+const lines = computed(() => {
+  return curTextPage.value.split("\n");
+});
+
 const curPage = ref<number>(1);
 const totalPage = ref<number>(10);
 
@@ -30,18 +39,9 @@ onMounted(async () => {
     }
   }
 
-  if (props.id) {
-    const firstPage: BookPage | undefined = await fetchPage(props.id, 1);
-    if (firstPage) {
-      loadedPages.value.push(firstPage);
-    }
-
-    if (totalPage.value > 1) {
-      const secondPage: BookPage | undefined = await fetchPage(props.id, 2);
-      if (secondPage) {
-        loadedPages.value.push(secondPage);
-      }
-    }
+  loadPageIntoPages(1);
+  if (totalPage.value > 1) {
+    loadPageIntoPages(2);
   }
 });
 
@@ -51,17 +51,39 @@ const truncatedTitle = computed(() => {
   return curTitle.value.slice(0, maxLength) + "...";
 });
 
+const loadPageIntoPages = async (pageNumber: number) => {
+  if (pageNumber < 1 || pageNumber > totalPage.value) return;
+
+  const isPageAlreadyLoaded = loadedPages.value.some(
+    (page) => page.page_number === pageNumber,
+  );
+  if (isPageAlreadyLoaded) return;
+  if (props.id) {
+    const page: BookPage | undefined = await fetchPage(props.id, pageNumber);
+    if (page) {
+      loadedPages.value.push(page);
+    } else {
+      throw new Error("Page not loaded correctly");
+    }
+  } else {
+    throw new Error("The props 'id' is not defined");
+  }
+};
+
 const handleNextPage = () => {
   if (curPage.value < totalPage.value) {
     curPage.value++;
-    //load page and page +1 if not loaded
+    loadPageIntoPages(curPage.value);
+    loadPageIntoPages(curPage.value + 1);
   }
 };
 
 const handlePreviousPage = () => {
   if (curPage.value > 1) {
     curPage.value--;
-    //load page and page -1 if not loaded
+
+    loadPageIntoPages(curPage.value);
+    loadPageIntoPages(curPage.value - 1);
   }
 };
 </script>
@@ -71,10 +93,7 @@ const handlePreviousPage = () => {
     <section class="text-panel">
       <h2>{{ truncatedTitle }}</h2>
       <p>
-        <span>Lorem ipsum dolor sit amet</span>
-        <span>consectetur adipiscing elit</span>
-        <span>Donec sit amet velit vitae</span>
-        <span>justo tempus pharetra</span>
+        <span v-for="line in lines"> {{ line }} </span>
       </p>
     </section>
 
